@@ -4,6 +4,8 @@
 table 50100 "BSB Book"
 {
     Caption = 'Book';
+    DataCaptionFields = "No.", Description;
+    LookupPageId = "BSB Book List";
 
     fields
     {
@@ -11,41 +13,55 @@ table 50100 "BSB Book"
         {
             Caption = 'No.';
             NotBlank = true;
+            ToolTip = 'Specifies the value of the No. field.', Comment = '%';
         }
         field(2; Description; Text[100])
         {
             Caption = 'Description';
+            ToolTip = 'Specifies the value of the Description field.', Comment = '%';
+
+            trigger OnValidate()
+            begin
+                if ("Search Description" = UpperCase(xRec.Description)) or ("Search Description" = '') then
+                    "Search Description" := CopyStr(Description, 1, MaxStrLen("Search Description"));
+            end;
         }
         field(3; "Search Description"; Code[100])
         {
             Caption = 'Search Description';
-            //TODO Satdardimpl. Search Description machen
+            ToolTip = 'Specifies the value of the Search Description field.', Comment = '%';
+            //[x] Stadardimpl. Search Description machen
         }
         field(4; Blocked; Boolean)
         {
             Caption = 'Blocked';
+            ToolTip = 'Specifies the value of the Blocked field.', Comment = '%';
         }
         field(5; Type; Option)
         {
             Caption = 'Type';
             OptionMembers = " ",Hardcover,Paperback;
             OptionCaption = ' ,Hardcover,Paperback';
+            ToolTip = 'Specifies the value of the Type field.', Comment = '%';
         }
         field(7; Created; Date)
         {
             Caption = 'Created';
             Editable = false;
-            //[ ]Automatisch belegen 
+            ToolTip = 'Specifies the value of the Created field.', Comment = '%';
+            //[x]Automatisch belegen 
         }
         field(8; "Last Date Modified"; Date)
         {
             Caption = 'Last Date Modified';
             Editable = false;
-            //[ ]Automatisch belegen 
+            ToolTip = 'Specifies the value of the Last Date Modified field.', Comment = '%';
+            //[x]Automatisch belegen 
         }
         field(10; Author; Text[50])
         {
             Caption = 'Author';
+            ToolTip = 'Specifies the value of the Author field.', Comment = '%';
         }
         field(11; "Author Provision %"; Decimal)
         {
@@ -53,24 +69,29 @@ table 50100 "BSB Book"
             DecimalPlaces = 0 : 2;
             MinValue = 0;
             MaxValue = 100;
+            ToolTip = 'Specifies the value of the Author Provision % field.', Comment = '%';
         }
         field(15; ISBN; Code[20])
         {
             Caption = 'ISBN';
+            ToolTip = 'Specifies the value of the ISBN field.', Comment = '%';
         }
         field(16; "No. of Pages"; Integer)
         {
             Caption = 'No. of Pages';
             MinValue = 0;
+            ToolTip = 'Specifies the value of the No. of Pages field.', Comment = '%';
         }
         field(17; "Edition No."; Integer)
         {
             Caption = 'Edition No.';
             MinValue = 0;
+            ToolTip = 'Specifies the value of the Edition No. field.', Comment = '%';
         }
         field(18; "Date of Publishing"; Date)
         {
             Caption = 'Date of Publishing';
+            ToolTip = 'Specifies the value of the Date of Publishing field.', Comment = '%';
         }
     }
 
@@ -79,6 +100,62 @@ table 50100 "BSB Book"
         key(PK; "No.") { Clustered = true; }
     }
 
-    //[ ] Ein Buch darf nicht gelöscht werden
-    //[ ] Testblocked() impl.
+    fieldgroups
+    {
+        fieldgroup(DropDown; "No.", Description) { }
+        fieldgroup(Brick; "No.", Description, ISBN, "No. of Pages") { }
+    }
+
+    var
+        OnDeleteBookErr: Label 'A Book cannot be deleted';
+
+    trigger OnInsert()
+    begin
+        Created := Today;
+    end;
+
+    trigger OnModify()
+    begin
+        "Last Date Modified" := Today;
+    end;
+
+    trigger OnRename()
+    begin
+        "Last Date Modified" := Today;
+    end;
+
+    trigger OnDelete()
+    begin
+        Error(OnDeleteBookErr);
+    end;
+
+    /// <summary>
+    /// Check if Book is blocked on base of Rec. If blocked an error comes up.
+    /// </summary>
+    procedure TestBlocked()
+    begin
+        TestBlocked(Rec);
+    end;
+
+    /// <summary>
+    /// Check if Book is blocked on base of given BookNo. If blocked an error comes up.
+    /// </summary>
+    /// <param name="BookNo">BookNo to check</param>
+    procedure TestBlocked(BookNo: Code[20])
+    var
+        BSBBook: Record "BSB Book";
+    begin
+        if not BSBBook.Get(BookNo) then
+            exit;
+        TestBlocked(BSBBook);
+    end;
+
+    local procedure TestBlocked(BSBBook: Record "BSB Book")
+    begin
+        BSBBook.TestField(Blocked, false);
+    end;
+
+
+    //[x] Ein Buch darf nicht gelöscht werden
+    //[x] Testblocked() impl.
 }

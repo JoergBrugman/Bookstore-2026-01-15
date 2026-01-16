@@ -155,6 +155,24 @@ table 50100 "BSB Book"
         BSBBook.TestField(Blocked, false);
     end;
 
+    procedure ShowCard()
+    begin
+        ShowCard(Rec);
+    end;
+
+    procedure ShowCard(BookNo: Code[20])
+    var
+        BSBBook: Record "BSB Book";
+    begin
+        if not BSBBook.Get(BookNo) then
+            exit;
+        ShowCard(BSBBook);
+    end;
+
+    local procedure ShowCard(BSBBook: Record "BSB Book")
+    begin
+        Page.RunModal(Page::"BSB Book Card", BSBBook);
+    end;
 
     //[x] Ein Buch darf nicht gelöscht werden
     //[x] Testblocked() impl.

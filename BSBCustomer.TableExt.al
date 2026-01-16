@@ -1,5 +1,5 @@
 /// <summary>
-/// TableExtension BSB Customer (ID 50100) extends Record Customer.
+/// TableExtension BSB Customer (ID 50100) extends Record Customer. XYZ...
 /// </summary>
 tableextension 50100 "BSB Customer" extends Customer
 {

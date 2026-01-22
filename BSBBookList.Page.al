@@ -101,11 +101,29 @@ page 50101 "BSB Book List"
                     BSBBookTypeProcess.StartDeliverBook();
                 end;
             }
+            action(EnumWithInterface)
+            {
+                Caption = 'Enum with Interface Impl.';
+                Image = Process;
+                ToolTip = 'Enum with Interface Impl.';
+
+                trigger OnAction()
+                var
+                    BSBookTypeProcess: Interface "BSB Book Type Process";
+                begin
+                    BSBookTypeProcess := Rec.Type;
+                    BSBookTypeProcess.StartDeployBook();
+                    if BSBookTypeProcess is "BSB Book Type Process V2" then
+                        (BSBookTypeProcess as "BSB Book Type Process V2").CheckBook();
+                    BSBookTypeProcess.StartDeliverBook();
+                end;
+            }
         }
         area(Promoted)
         {
             actionref(ClassicImpl_Promoted; ClassicImpl) { }
             actionref(InterfaceImpl_Promoted; InterfaceImpl) { }
+            actionref(EnumWithInterface_Promoted; EnumWithInterface) { }
         }
     }
 

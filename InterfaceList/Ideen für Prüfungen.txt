@@ -1,0 +1,3 @@
+- Buch auf gesperrt prüfen
+- Ein Buch muss folgende Angaben haben: Description, Autor, Seitenzahl und Date of Publishing
+- Ein eBook darf nur bei ausländischen Debitoren zugeordnet sein 

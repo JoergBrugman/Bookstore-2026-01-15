@@ -1,6 +1,7 @@
 codeunit 50122 "BSB Notif. Subscriber Store"
 {
     var
+        MyNotifications: Record "My Notifications";
         CredLimitNotif: Notification;
         CredLimitNotifIDTxt: label '63d43e33-b09b-4ee5-af6c-3d0d917b2b81', Locked = true;
         CredLimitNotifMsg: Label '%1 %2 of %3 %4 %5 is lager than %6', Comment = '"DEU"=%1 %2 of %3 %4 %5 is ist größer als %6';
@@ -16,7 +17,9 @@ codeunit 50122 "BSB Notif. Subscriber Store"
         Customer.Get(Rec."Bill-to Customer No.");
         if Customer."Credit Limit (LCY)" = 0 then
             exit;
-        if Customer."Balance (LCY)" > Customer."Credit Limit (LCY)" then begin
+        if (Customer."Balance (LCY)" > Customer."Credit Limit (LCY)") and
+            MyNotifications.IsEnabledForRecord(CredLimitNotifIDTxt, Customer)
+        then begin
             CredLimitNotif.Id := CredLimitNotifIDTxt;
             CredLimitNotif.Scope := CredLimitNotif.Scope::LocalScope;
             CredLimitNotif.Message(
@@ -29,7 +32,23 @@ codeunit 50122 "BSB Notif. Subscriber Store"
                 Customer."Credit Limit (LCY)")
 
             );
+            CredLimitNotif.SetData('CustNo', Customer."No.");
+            CredLimitNotif.AddAction('Edit Customer', Codeunit::"BSB Notif. Subscriber Store", 'OpenCustomerCard');
             CredLimitNotif.Send();
         end;
+    end;
+
+    procedure OpenCustomerCard(Notification: Notification)
+    var
+        Customer: Record Customer;
+    begin
+        Customer.Get(Notification.GetData('CustNo'));
+        Page.Run(Page::"Customer Card", Customer);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", OnInitializingNotificationWithDefaultState, '', false, false)]
+    local procedure "My Notifications_OnInitializingNotificationWithDefaultState"()
+    begin
+        MyNotifications.InsertDefaultWithTableNum(CredLimitNotifIDTxt, 'Customer Balance exceed Credit Limit', 'Description: Customer Balance exceed Credit Limit', Database::Customer);
     end;
 }

@@ -4,5 +4,7 @@ permissionset 50100 "BSB BOOKSTORE, EDIT"
     Caption = 'Create and Modify Books etc.';
     Permissions =
         tabledata "BSB Book" = RIMD,
-        table "BSB Book" = X;
+        table "BSB Book" = X,
+        table "BSB AL Issue" = X,
+        tabledata "BSB AL Issue" = RIMD;
 }

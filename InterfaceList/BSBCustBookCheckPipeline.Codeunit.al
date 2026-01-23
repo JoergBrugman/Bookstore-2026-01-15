@@ -19,8 +19,29 @@ codeunit 50110 "BSB Cust. Book Check Pipeline"
     end;
 
     local procedure SortSteps(var Steps: List of [Interface "BSB Cust. Book Check Step"])
+    var
+        Integers: Record Integer;
+        Sorted: List of [Interface "BSB Cust. Book Check Step"];
+        Step: Interface "BSB Cust. Book Check Step";
     begin
-        ;
+        // Sequences einsammeln
+        foreach Step in Steps do begin
+            Integers.Get(Step.GetSequence());
+            Integers.Mark(true);
+        end;
+        // Auf markierte Datensätze filtern 
+        Integers.MarkedOnly(true);
+
+        // Die Sequences nacheinander durchgehen
+        if Integers.FindSet() then
+            repeat
+                // Alle Steps nacheinander durchgehen  
+                foreach Step in Steps do
+                    // Jetzt die Interfaces, die einer Sequence angehören, nacheinander übertragen
+                    if Step.GetSequence() = Integers.Number then
+                        Sorted.Add(Step);
+            until Integers.Next() = 0;
+        Steps := Sorted;
     end;
 
     [IntegrationEvent(false, false)]

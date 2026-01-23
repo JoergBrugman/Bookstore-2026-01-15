@@ -2,7 +2,7 @@
     "workbench.iconTheme": "vscode-icons",
     "editor.mouseWheelZoom": true,
     "editor.snippetSuggestions": "bottom",
-    "al.enableCodeAnalysis": true,
+    "al.enableCodeAnalysis": false,
     "al.codeAnalyzers": [
         "${CodeCop}",
         "${PerTenantExtensionCop}",
